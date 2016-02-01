@@ -3,10 +3,13 @@ package abassawo.c4q.nyc.swagcam;
 import android.content.Context;
 import android.hardware.Camera;
 import android.util.Log;
+import android.view.Display;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,6 +30,10 @@ public class Preview extends ViewGroup implements SurfaceHolder.Callback {
     Camera.Size mPreviewSize;
     List<Camera.Size> mSupportedPreviewSizes;
     Camera mCamera;
+    int screenWidth;
+    int screenHeight;
+    int viewHeight;
+    int viewWidth;
 
     public Preview(Context context){
         super(context);
@@ -35,6 +42,25 @@ public class Preview extends ViewGroup implements SurfaceHolder.Callback {
         mHolder = mSurfaceview.getHolder();
         mHolder.addCallback(this);
         mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
+
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        int rotation = display.getRotation();
+
+        // If vertical, we fill 2/3 the height and all the width. If horizontal,
+        // fill the entire height and 2/3 the width
+//        if (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) {
+//            screenWidth = display.getWidth();
+//            screenHeight = display.getHeight();
+//            viewHeight = 2 *  (screenHeight / 3);
+//            viewWidth = screenWidth;
+//        } else {
+//            screenWidth = display.getWidth();
+//            screenHeight = display.getHeight();
+//            viewWidth = 2 * (screenWidth / 3);
+//            viewHeight = screenHeight;
+//        }
     }
 
     public void setCamera(Camera camera){
@@ -71,11 +97,15 @@ public class Preview extends ViewGroup implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Camera.Parameters parameters = mCamera.getParameters();
-        parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-        requestLayout();
-        mCamera.setParameters(parameters);
-        mCamera.startPreview();
+        if(mCamera == null) {
+                mCamera = Camera.open();
+        }
+            Camera.Parameters parameters = mCamera.getParameters();
+            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+            requestLayout();
+            mCamera.setParameters(parameters);
+            mCamera.startPreview();
+
     }
 
     @Override
@@ -87,30 +117,30 @@ public class Preview extends ViewGroup implements SurfaceHolder.Callback {
     }
 
     @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         if (changed && getChildCount() > 0) {
+           // (this).layout(0, 0, viewWidth, viewHeight);
             final View child = getChildAt(0);
-            final int width = r - l;
-            final int height = b - t;
+            final int width = right - left;
+            final int height = bottom - top;
             int previewWidth = width;
             int previewHeight = height;
-            if (mPreviewSize != null) {
-                previewWidth = mPreviewSize.width;
-                previewHeight = mPreviewSize.height;
-            }
+//            if (mPreviewSize != null) {
+//                previewWidth = mPreviewSize.width;
+//                previewHeight = mPreviewSize.height;
+//            }
             // Center the child SurfaceView within the parent.
-            if (width * previewHeight > height * previewWidth) {
-                final int scaledChildWidth = previewWidth * height
-                        / previewHeight;
-                child.layout((width - scaledChildWidth) / 2, 0,
-                        (width + scaledChildWidth) / 2, height);
-            } else {
-                final int scaledChildHeight = previewHeight * width
-                        / previewWidth;
-                child.layout(0, (height - scaledChildHeight) / 2, width,
-                        (height + scaledChildHeight) / 2);
-            }
+            child.layout(left, top, right, bottom);
+//            if (width * previewHeight > height * previewWidth) {
+//                final int scaledChildWidth = previewWidth * height / previewHeight;
+//                child.layout((width - scaledChildWidth) / 2, 0,
+//                        (width + scaledChildWidth) / 2, height);
+//            } else {
+//                final int scaledChildHeight = previewHeight * width
+//                        / previewWidth;
+//                child.layout(0, (height - scaledChildHeight) / 2, width,
+//                        (height + scaledChildHeight) / 2);
+//            }
         }
     }
 
