@@ -7,4 +7,10 @@
     <string name="capturing_image">Taking New Picture</string>
     <string name="done">Done</string>
     <string name="switch_cam">Switch Cams</string>
+    <string name="permission_request">Permission to use camera</string>
+    <string name="stop">Stop</string>
+    <string name="record">Record</string>
+    <string name="camera_error">Error</string>
+    <string name="intro_message">Intro</string>
+    <string name="description_info">Description</string>
 </resources>
